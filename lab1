@@ -1,0 +1,64 @@
+inp_sample = [441, 81, 911, 189, 176, 99, 236, 622, 184,
+                851, 45, 154, 255, 28, 526, 265, 292, 266,
+                283, 61, 64, 112, 655, 446, 11, 99, 214, 500,
+                327, 318, 35, 44, 142, 337, 403, 49, 19, 13,
+                165, 28, 184, 824, 37, 12, 552, 479, 156,
+                140, 345, 54, 70, 15, 21, 306, 1275, 878,
+                439, 348, 18, 132, 676, 461, 86, 83, 160, 93,
+                863, 217, 264, 144, 0, 920, 83, 174, 491,
+                204, 134, 32, 493, 117, 493, 23, 65, 127, 72,
+                305, 182, 101, 143, 333, 175, 498, 337, 211,68, 124, 622, 474, 468, 91]
+gamma = 0.54
+infallible_time = 880
+time_on_failure_intensity = 258
+
+"""LabWork"""
+# Task #1
+Avg_operating_time_on_failure = sum(inp_sample) / len(inp_sample)
+
+# Task #2
+inp_sample.sort()
+dimension_of_sample = inp_sample[-1] / 10
+density_fi = [0]
+P = [1]
+index = 0
+new_count = 0
+i = 0
+
+for s in range(1, 11):
+    count = 0
+    while i < len(inp_sample) and inp_sample[i] <= s * dimension_of_sample + inp_sample[0]:
+        count += 1
+        new_count += 1
+        i += 1
+    density_fi.append(count / (dimension_of_sample * len(inp_sample)))
+    S = new_count / len(inp_sample)
+    P.append(1 - S)
+    # P.append(count / len(inp_sample))  # P = density_fi * range_sample = (count * range_sample) / ((range_sample * len(inp_sample))
+    if P[s - 1] > gamma > P[s]:
+        it = s
+d = (P[it - 1] - gamma) / (P[it - 1] - P[it])
+T = density_fi[it - 1] + dimension_of_sample * d
+
+# Task #3
+probability_infallible_time = 1
+s = 1
+while s * dimension_of_sample <= infallible_time:
+    probability_infallible_time -= density_fi[s] * dimension_of_sample
+    s += 1
+probability_infallible_time -= density_fi[s] * (infallible_time - (s - 1) * dimension_of_sample)
+
+# Task #4
+probability_infallible_time_from_f = 1
+s = 1
+while s * dimension_of_sample <= time_on_failure_intensity:
+    probability_infallible_time_from_f -= density_fi[s] * dimension_of_sample
+    s += 1
+probability_infallible_time_from_f -= density_fi[s] * (time_on_failure_intensity - (s - 1) * dimension_of_sample)
+failure_rate_lambda = density_fi[s] / probability_infallible_time_from_f
+
+"""Output results in console"""
+print("Average operating time to failure (Tcp) =", Avg_operating_time_on_failure)
+print(f"γ-percent work on refusal Tγ at γ = {gamma}, T = {T}")
+print(f"Probable uptime on time {infallible_time}, P({infallible_time}) = {probability_infallible_time}")
+print(f"Failure intensity on time {time_on_failure_intensity}, λ = {failure_rate_lambda}")
